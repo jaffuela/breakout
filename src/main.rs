@@ -72,28 +72,33 @@ async fn main() {
         //Dessin du tapis
         draw_rectangle(
             tapis.pos as f32,
-            screen_height() - 20.0,  // placer en bas
+            screen_height() - tapis.hauteur,  // placer en bas
             tapis.largeur as f32,
-            10.0,                     // hauteur du tapis
+            tapis.hauteur,                     // hauteur du tapis
             WHITE,
         );
         //Maj balle
-        let dt = get_frame_time();  // temps écoulé depuis la dernière frame en secondes
+        let dt = get_frame_time();  // get_frame_time() = temps écoulé depuis la dernière frame en secondes
         balle.pos.0 += balle.vitesse.0 * dt;
         balle.pos.1 += balle.vitesse.1 * dt;
         //Rebond gauche-droite
         if balle.pos.0 - balle.rayon < 0.0 //balle à gauche
         || balle.pos.0 + balle.rayon > screen_width(){//balle à droite
-            balle.vitesse.0 *= -1.0; //rebond à droite
+            balle.vitesse.0 *= -1.0;
         }
-        //Rebond haut-bas
-
-        if balle.pos.1 - balle.rayon < tapis.hauteur || balle.pos.1 + balle.rayon > screen_height(){ //balle en haut
+        //Rebond haut
+        if balle.pos.1 - balle.rayon < 0.0 {
             balle.vitesse.1 *= -1.0;
+        }
+        //Rebond bas (sur le tapis)
+        if balle.pos.1 + balle.rayon >= screen_height() - tapis.hauteur &&
+            balle.pos.0 >= tapis.pos &&
+            balle.pos.0 <= (tapis.pos + tapis.largeur){ //ici tapis.pos est le coin haut gauche
+                balle.vitesse.1 *= -1.0;
         }
         //Dessin balle
         draw_circle(balle.pos.0, balle.pos.1, balle.rayon, YELLOW);
-
+        //Frame finie, place à la suivante !
         next_frame().await;
     }
 }
